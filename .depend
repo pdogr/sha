@@ -1,4 +1,4 @@
-main.o: main.c /usr/aarch64-linux-gnu/include/stdc-predef.h sha.h \
+test.o: test.c /usr/aarch64-linux-gnu/include/stdc-predef.h sha.h \
  /usr/aarch64-linux-gnu/include/inttypes.h \
  /usr/aarch64-linux-gnu/include/features.h \
  /usr/aarch64-linux-gnu/include/sys/cdefs.h \
@@ -54,4 +54,8 @@ main.o: main.c /usr/aarch64-linux-gnu/include/stdc-predef.h sha.h \
  /usr/aarch64-linux-gnu/include/bits/struct_mutex.h \
  /usr/aarch64-linux-gnu/include/bits/struct_rwlock.h \
  /usr/aarch64-linux-gnu/include/alloca.h \
- /usr/aarch64-linux-gnu/include/bits/stdlib-float.h
+ /usr/aarch64-linux-gnu/include/bits/stdlib-float.h \
+ /usr/aarch64-linux-gnu/include/string.h \
+ /usr/aarch64-linux-gnu/include/bits/types/locale_t.h \
+ /usr/aarch64-linux-gnu/include/bits/types/__locale_t.h \
+ /usr/aarch64-linux-gnu/include/strings.h
