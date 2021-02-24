@@ -211,36 +211,62 @@ sha256:
 	mov x27, xzr
 	adr x25, buf256 
 	ldr x26, [sp, #inp]
-	
+	ldr x24, [sp, #len]
+	and x29, x24, #7
+
 	b main_loop_cond 
 	main_loop_work:
 		lsr x22, x28, #3
 		ldrb w22, [x26, x22]
 		strb w22, [x25, x27]
+
 		add x28, x28, #8
 		add x27, x27, #1
 
 		cmp x27, #64
 		bne main_loop_cond
+		cmp x26, xzr 
+		beq do_transform
+
+		ldr x24, [sp, #len]
+		sub x24, x24, x28
+		cmp x24, xzr
+		bge do_transform
+		b after_main_loop
+
+do_transform:
 		bl tb256
 		mov x27, xzr 
+
 	main_loop_cond:
 		ldr x24, [sp, #len]
 		cmp x28, x24
 		blt main_loop_work
-	
-	ldr x24, [sp, #len]
-	and x26, x24, #7
+
+after_main_loop:
+	sub x27, x27, #1
+
+	cmp x29, xzr 
+	cinc x27, x27, eq
+
 	adr x24, _shift 
-	ldrb w22, [x24, x26] //shift 
+	ldrb w22, [x24, x29] //shift 
 	adr x24, _mask
-	ldrb w24, [x24, x26]  // mask 
+	ldrb w24, [x24, x29]  // mask
+
+	cmp x29, xzr 
+	beq byte_oriented
+
 	ldrb w28, [x25, x27]
 	and w28, w28, w24
 	orr w22, w22, w28
 	strb w22, [x25, x27]
-	add x27, x27, #1
+	b check_block
 
+byte_oriented:
+	strb w22, [x25, x27]
+check_block:
+	add x27, x27, #1
 	cmp x27, #57
 	bge block_over_flow 
 
@@ -269,7 +295,7 @@ block_over_flow:
 		strb wzr, [x25, x27]
 		add x27, x27, #1
 	zero_loop_cond:
-		cmp x27, #56
+		cmp x27, #64
 		blt zero_loop_work
 	
 final_block:

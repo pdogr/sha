@@ -44,6 +44,21 @@ void test_file(char *filename, const ssize_t md_bytes) {
 
     int pass = !memcmp(md, out_md, 32);
     char *result = (pass) ? "Test passed" : "Test failed";
+    if (!pass) {
+      fprintf(stderr, "L = %d\n", bitlen);
+      fprintf(stderr, "File: %s\n", filename);
+      fprintf(stderr, "Expected:\t");
+      for (int i = 0; i < md_bytes; ++i) {
+        fprintf(stderr, "%02x", md[i]);
+      }
+      fprintf(stderr, "\n");
+      fprintf(stderr, "Calculated:\t");
+      for (int i = 0; i < md_bytes; ++i) {
+        fprintf(stderr, "%02x", out_md[i]);
+      }
+      fprintf(stderr, "\n%s\n", result);
+    }
+
 #ifdef DEBUG
     fprintf(stderr, "File: %s\n", filename);
     fprintf(stderr, "Expected:\t");
@@ -57,6 +72,7 @@ void test_file(char *filename, const ssize_t md_bytes) {
     }
     fprintf(stderr, "\n%s\n", result);
 #endif
+
     free(out_md);
     free(md);
     free(msg);
@@ -72,6 +88,8 @@ void test_file(char *filename, const ssize_t md_bytes) {
 int main() {
   test_file("data/byte/SHA256ShortMsg.rsp", 32);
   test_file("data/byte/SHA256LongMsg.rsp", 32);
+  test_file("data/bit/SHA256ShortMsg.rsp", 32);
+  test_file("data/bit/SHA256LongMsg.rsp", 32);
 
   return 0;
 }
