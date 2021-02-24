@@ -20,7 +20,8 @@ void hex2bytes(char *hex_text, ssize_t bytes_len, uint8_t *bytes_out) {
         (uint8_t)((unhex(hex_text[2 * i]) << 4) + unhex(hex_text[2 * i + 1]));
   }
 }
-void test_file(char *filename, const ssize_t md_bytes) {
+void test_file(char *filename, const ssize_t md_bytes,
+               int (*sha)(uint8_t *, ssize_t, uint8_t *)) {
   FILE *fp = fopen(filename, "r");
   int total = 0, correct = 0;
   while (!feof(fp)) {
@@ -35,17 +36,20 @@ void test_file(char *filename, const ssize_t md_bytes) {
     fscanf(fp, "Msg = %s\n", hex_msg);
     char *hex_md = malloc(2 * md_bytes + 1);
     fscanf(fp, "MD = %s\n", hex_md);
+
     uint8_t *msg = malloc(bytes);
     uint8_t *md = malloc(md_bytes);
     uint8_t *out_md = malloc(md_bytes);
     hex2bytes(hex_msg, bytes, msg);
     hex2bytes(hex_md, md_bytes, md);
-    sha256(msg, bitlen, out_md);
+
+    (*sha)(msg, bitlen, out_md);
 
     int pass = !memcmp(md, out_md, 32);
     char *result = (pass) ? "Test passed" : "Test failed";
     if (!pass) {
       fprintf(stderr, "L = %d\n", bitlen);
+      fprintf(stderr, "MSG = %s\n", hex_msg);
       fprintf(stderr, "File: %s\n", filename);
       fprintf(stderr, "Expected:\t");
       for (int i = 0; i < md_bytes; ++i) {
@@ -57,6 +61,7 @@ void test_file(char *filename, const ssize_t md_bytes) {
         fprintf(stderr, "%02x", out_md[i]);
       }
       fprintf(stderr, "\n%s\n", result);
+      exit(0);
     }
 
 #ifdef DEBUG
@@ -86,10 +91,13 @@ void test_file(char *filename, const ssize_t md_bytes) {
 }
 
 int main() {
-  test_file("data/byte/SHA256ShortMsg.rsp", 32);
-  test_file("data/byte/SHA256LongMsg.rsp", 32);
-  test_file("data/bit/SHA256ShortMsg.rsp", 32);
-  test_file("data/bit/SHA256LongMsg.rsp", 32);
-
+  test_file("data/byte/SHA256ShortMsg.rsp", 32, &sha256);
+  test_file("data/byte/SHA256LongMsg.rsp", 32, &sha256);
+  test_file("data/bit/SHA256ShortMsg.rsp", 32, &sha256);
+  test_file("data/bit/SHA256LongMsg.rsp", 32, &sha256);
+  test_file("data/byte/SHA512ShortMsg.rsp", 64, &sha512);
+  test_file("data/byte/SHA512LongMsg.rsp", 64, &sha512);
+  test_file("data/bit/SHA512ShortMsg.rsp", 64, &sha512);
+  test_file("data/bit/SHA512LongMsg.rsp", 64, &sha512);
   return 0;
 }
