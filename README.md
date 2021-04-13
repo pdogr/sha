@@ -1,4 +1,8 @@
 # sha
 SHA implementations in aarch64 assembly 
 
-On going 
+SHA128 and SHA256 byte/bit impl ARM64.
+
+data/bit & data/byte contain CAVP test vectors 
+
+
